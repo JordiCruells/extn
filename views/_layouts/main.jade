@@ -1,0 +1,53 @@
+doctype html
+block head_css
+  link(rel='stylesheet', href="#{_st('/stylesheets/style.min.778d3782.css')}")
+  if pageTest
+    link(rel="stylesheet", href="/vendor/mocha/mocha.css")
+  each file in config.externalFiles
+    if file.type === 'css' && file.position === 'head'
+      if testing.crossPageTest || file.url === '' || typeof file.url === 'undefined'
+        link(rel="stylesheet", href="/assets/" + file.name)
+      else
+        link(rel="stylesheet", href=file.url)
+block head_js
+  script(src="#{_st('/javascripts/index.min.e0c3c1ca.js')}")
+  each file in config.externalFiles
+    if file.type === 'js' && file.position === 'head'
+      if testing.crossPageTest || file.url === '' || typeof file.url === 'undefined'
+        script(src="/assets/" + file.name)
+      else
+        script(src=file.url)
+html
+head
+    title= title
+
+
+  body
+    include ../_partials/facebookSDK
+    // Flash messages
+    block flash
+      if flash
+        div.alert.alert-dismissible
+          button.close(type="buttton", data-dismiss="alert", aria-hidden="true") &times;
+          strong #{flash.intro} 
+          #{flash.message}
+    block header
+      img(src="#{_st('/images/error.jpg')}")
+    block content
+    
+    block pageTest
+      if pageTest
+        div#mocha
+        script(type="application/javascript", src="/vendor/mocha/mocha.js")
+        script(type="application/javascript", src="/vendor/chai/chai.js")
+        script.
+          mocha.ui('tdd');
+          var assert = chai.assert;
+        script(type="application/javascript", src="/tests/global.js")
+        if pageTestScript
+          script(type="application/javascript", src="/tests/pages/#{pageTestScript}")
+        script.
+          mocha.run();
+
+  footer 
+    block footer

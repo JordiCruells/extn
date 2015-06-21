@@ -1,0 +1,30 @@
+extends /_layouts/main 
+
+append head_css
+  style
+    :stylus
+      h1
+        color #00f !important
+      .gradient
+        width 100px
+        height 100px
+
+append head_js
+  script.
+    alert('hey!');
+
+block content
+  h1 Testing stylus 
+  #content  Inside #content 
+  p.warn This is a warning message 
+  .gradient
+  #content.important Content important 
+    .special 
+      p |Realism A.I. alcohol shanty town physical systema boat towards concrete post-wonton soup knife otaku. 
+        |Crypto-bridge BASE jump tiger-team render-farm hacker tanto dome j-pop camera wristwatch euro-pop katana car carbon fluidity. Claymore mine narrative artisanal Chiba rain sprawl smart-concrete meta. Towards pen media garage motion tiger-team shanty town DIY tower beef noodles plastic ablative urban. Disposable warehouse media apophenia boy pistol saturation point. Courier systemic human voodoo god digital advert shanty town chrome car office tanto hacker augmented reality silent. 
+
+append footer 
+  a(href="http://www.google.es") Google
+
+
+

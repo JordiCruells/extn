@@ -1,0 +1,31 @@
+extends /_layouts/main
+
+append head_css
+    style
+        :stylus
+            a.currency
+                text-decoration none
+                padding: 20px
+            .currency.selected
+                font-weight bold
+                font-size 150%
+
+block content
+    h1 Vacations
+    each vacation in vacations
+        .vacation
+            h3 #{vacation.name}
+            p #{vacation.description}
+            span.inSeason #{vacation.inSeason}
+            if vacation.inSeason
+                span.price #{vacation.price}
+                a.btn.btn-default(href="/cart/add?sku=#{vacation.sku}") Buy now!
+            else
+                span.outOfSeason We're sorry, this vacation is currently not in season
+                a(href="/vacations/notify-me-when-in-season?sku=#{vacation.sku}") Notify me when this vacation is in season
+
+    hr
+    p Currency
+    a(class="currency #{currencyUSD}", href="/set-currency/USD") USD
+    a(class="currency #{currencyGBP}", href="/set-currency/GBP") GBP
+    a(class="currency #{currencyBTC}", href="/set-currency/BTC") BTC

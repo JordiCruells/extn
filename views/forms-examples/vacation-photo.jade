@@ -1,0 +1,30 @@
+extends /_layouts/main 
+
+block content
+  
+  .formContainer
+    form.form-horizontal.newsletterForm(role="form", action="/vacation-photo/#{year}/#{month}", enctype="multipart/form-data", method="POST")
+    
+      //input(type="hidden", name="_csrf", value="#{csrf}")
+      
+      div.form-group
+        label.col-sm-2.control-label(for="fieldName") Name
+        div.col-sm-4 
+          input#fieldName.form-control(type="text", name="name")
+      
+      div.form-group
+        label.col-sm-2.control-label(for="fieldEmail") Email
+        div.col-sm-4 
+          input#fieldName.form-control(type="text", name="email")
+
+      div.form-group
+        label.col-sm-2.control-label(for="fieldPhoto") Vacation Photo
+        div.col-sm-4 
+          input#fieldPhoto.form-control(type="file", name="photo", accept="image/*")
+      
+      div.form-group
+        div.col-sm-offset-2.col-sm-4(for="fieldname") 
+          button#btn.btn-default(type="submit") Register
+    
+
+    

@@ -1,0 +1,15 @@
+extends /_layouts/main
+
+block content
+    .formContainer
+        form.form-horizontal.newsletterForm(role="form", action="/vacations/notify-me-when-in-season", method="POST")
+            input(type='hidden', name='sku', value='#{sku}')
+            .form-group
+                label.col-sm-2.control-label(for="fieldEmail") Email
+                .col-sm-4
+                    input#fieldName.form-control(type="email", name="email", required)
+            .form-group
+                .col-sm-offset-2.col-sm-4
+                    button.btn.btn-default(type='submit') Submit
+
+

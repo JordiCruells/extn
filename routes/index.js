@@ -1,9 +1,18 @@
 var express = require('express');
-var router = express.Router();
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
-});
+module.exports = function (app) {
 
-module.exports = router;
+  var router = express.Router({
+    caseSensitive : app.get('case sensitive routing'),
+    strict: app.get('strict routing')
+  });
+
+  /* GET home page. */
+
+  router.get('/', function(req, res, next) {
+    console.log('index');
+    res.render('index', { title: 'Express' });
+  });
+
+  return router;
+};

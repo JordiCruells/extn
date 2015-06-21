@@ -1,0 +1,47 @@
+extends /_layouts/main 
+
+block content
+  
+  .formContainer
+    form.form-horizontal.newsletterForm(role="form", action="/process?form=newsletter", method="POST")
+      input(type="hidden", name="_csrf", value="#{csrf}")
+      
+      div.form-group
+        label.col-sm-2.control-label(for="fieldName") Name
+        div.col-sm-4 
+          input#fieldName.form-control(type="text", name="name")
+      
+      div.form-group
+        label.col-sm-2.control-label(for="fieldEmail") Email
+        div.col-sm-4 
+          input#fieldName.form-control(type="text", name="email")
+      
+      div.form-group
+        div.col-sm-offset-2.col-sm-4(for="fieldname") 
+          button#btn.btn-default(type="submit") Register
+    
+
+    script.
+      $(document).ready(function(){
+        $('.newsletterForm').on('submit', function(evt) {
+          evt.preventDefault();
+          var action = $(this).attr('action');
+          var $container = $(this).closest('.formContainer');
+          var data = $(this).serializeArray();
+          $.ajax({
+            url: action,
+            type: 'POST',
+            data: data,
+            success: function(data) {
+              if (data.success) {
+                $container.html('<h2>Thank you!</h2>');
+              } else {
+                $container.html('<h2>There was a problem</h2>');
+              }
+            },
+            error: function() {
+              $container.html('<h2>There was a problem</h2>');
+            }
+          });
+        });
+      });

@@ -1,0 +1,1 @@
+.gradient{background-image:-webkit-linear-gradient(left, #f00, #008000 50%);background-image:linear-gradient(to right, #f00, #008000 50%);border-radius:5px}.warn{color:warning-color}#content,#message{color:#00a;}#content.important,#message.important{font:bold}#content .special,#message .special{background:#cff;display:block;color:#f00}#message{font-size:40px}

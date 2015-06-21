@@ -1,0 +1,1 @@
+function helloIndex(){console.log("Hello Index")}function hello(){console.log("Hello")}

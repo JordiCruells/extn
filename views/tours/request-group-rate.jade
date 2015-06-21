@@ -1,0 +1,18 @@
+extends /_layouts/main 
+
+block content 
+  form
+    input(type="hidden", name="referrer")
+    | Name:
+    input#fieldName(type="text", name="name")
+    br
+    | Group size:
+    input(type="text", name="groupsize")
+    br 
+    | Email: 
+    input(type="email", name="email")
+    input(type="submit", value="submit")
+  script.
+    $(document).ready(function(){
+      $('input[name=referrer]').val(document.referrer);
+    });
