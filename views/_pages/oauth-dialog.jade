@@ -1,0 +1,12 @@
+extends /_layouts/main
+block content
+  p Hi #{user.name}
+  p
+    #{client.name} is requesting access to your account.
+  p Do you approve?
+  form(action="/dialog/authorize/decision", method="post")
+    input(name="transaction_id", type="hidden", value="#{transactionID}")
+    div
+      input#allow(type="submit", value="Allow")
+      input#deny(type="submit", value="Deny", name="cancel")
+

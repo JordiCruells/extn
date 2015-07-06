@@ -29,16 +29,20 @@ module.exports = function (app) {
 
 
 // Get
+
+// TODO: fill this method properly or delete
 var getUser = function (req, res, next) {
   //res.send('respond with a resource');
   res.send(200, {name: 'Jordi'});
 };
 
+// TODO: fill this method properly or delete
 var getId = function (req, res, next) {
   //res.send('respond with a resource');
   res.send(200, {name: 'Jordi'});
 };
 
+// TODO: fill this method properly or delete
 var createUser = function (req, res, next) {
   var name = req.body.username;
   var email = req.body.email;

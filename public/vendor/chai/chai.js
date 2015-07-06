@@ -4431,7 +4431,7 @@ module.exports = function getPathInfo(path, obj) {
 /*!
  * ## parsePath(path)
  *
- * Helper function used to parse string object
+ * Helper function used to parseProfile string object
  * paths. Use in conjunction with `_getPathValue`.
  *
  *      var parsed = parsePath('myobject.property.subprop');
@@ -4641,13 +4641,13 @@ exports.getMessage = require('chai/lib/chai/utils/getMessage.js');
 exports.getActual = require('chai/lib/chai/utils/getActual.js');
 
 /*!
- * Inspect util
+ * Inspect utils
  */
 
 exports.inspect = require('chai/lib/chai/utils/inspect.js');
 
 /*!
- * Object Display util
+ * Object Display utils
  */
 
 exports.objDisplay = require('chai/lib/chai/utils/objDisplay.js');
@@ -4735,7 +4735,7 @@ exports.overwriteChainableMethod = require('chai/lib/chai/utils/overwriteChainab
 
 require.register("chai/lib/chai/utils/inspect.js", function (exports, module) {
 // This is (almost) directly from Node.js utils
-// https://github.com/joyent/node/blob/f8c335d0caf47f16d31413f89aa28eda3878e3aa/lib/util.js
+// https://github.com/joyent/node/blob/f8c335d0caf47f16d31413f89aa28eda3878e3aa/lib/utils.js
 
 var getName = require('chai/lib/chai/utils/getName.js');
 var getProperties = require('chai/lib/chai/utils/getProperties.js');
@@ -4779,7 +4779,7 @@ function formatValue(ctx, value, recurseTimes) {
   // Provide a hook for user-specified inspect functions.
   // Check that value is an object with an inspect function on it
   if (value && typeof value.inspect === 'function' &&
-      // Filter out the util module, it's inspect function is special
+      // Filter out the utils module, it's inspect function is special
       value.inspect !== exports.inspect &&
       // Also filter out any prototype objects using the circular check.
       !(value.constructor && value.constructor.prototype === value)) {

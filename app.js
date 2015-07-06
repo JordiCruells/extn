@@ -65,7 +65,7 @@ i18n.configure({
     directory: __dirname + '/locales',
 
     defaultLocale: 'en',
-    // sets a custom cookie name to parse locale settings from  - defaults to NULL
+    // sets a custom cookie name to parseProfile locale settings from  - defaults to NULL
     cookie: 'lang'
 });
 
@@ -79,8 +79,7 @@ var sessionStore = new MongoSessionStore({ url: dbConnectionString });
 var slash   = require('express-slash');
 
 
-//Restful api
-var rest = require('connect-rest');
+
 
 // Own libs
 var fortune = require('./lib/fortune.js');
@@ -97,11 +96,15 @@ var auth = require('./lib/auth.js')(app, {
     failureRedirect: '/unathorized'
 });
 
+
+
 // Globals
 
+// TODO : maybe move this configuration values to a JSON file (credentials ?)
 var dbConnectionString = "",
     baseUrl = "",
     domain = "";
+
 switch (app.get('env')) {
     case 'development':
         dbConnectionString = credentials.mongo.development.connectionString;
@@ -155,19 +158,20 @@ app.set('strict routing', true);
 
 
 
-
+// TODO: Move this to a JSOn file (same as above)
 // Get connection to database
 var DBOptions = {
     server: {
         socketOptions: {keepAlive: 1}
     }
 };
-mongoose.connect(dbConnectionString, DBOptions);
+
+// Connect to Mongo and execute preload once connected
+mongoose.connect(dbConnectionString, DBOptions, require('./lib/databasePreload')(app));
+
 
 // Service to send mails
 var emailService = require('./lib/email.js')(credentials, app.get('env'));
-
-
 
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -221,27 +225,25 @@ app.use(i18n.init);
 
 
 
-
-
-
 // Recover from errors using domains (should be first middleware to use)
 app.use(require('./lib/recover')(app));
 
 // Trace which working is handling the request
-app.use(function (req, res, next) {
+/*app.use(function (req, res, next) {
     var cluster = require('cluster');
     if (cluster.isWorker) {
         console.log('Worker %d received request', cluster.worker.id);
     }
     next();
 });
+*/
 
-
+/*
 app.use(function (req, res, next) {
     console.log("environment is " + app.get('env'));
     next();
 });
-
+*/
 
 //Logging
 switch (app.get('env')) {
@@ -287,24 +289,25 @@ app.use(session({
 })); // we can pass an object like {key: 'someKey', store: MemoryStore, cookie: {signed: true}}
 
 
+// TODO : ensure thsi middleware it's necessary
 // See http://stackoverflow.com/questions/9071969/using-express-and-node-how-to-maintain-a-session-across-subdomains-hostheaders
-app.use(function(req, res, next) {
+/*app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Credentials', true);
     res.header('Access-Control-Allow-Origin', req.headers.origin);
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
     next();
-});
+});*/
 /// ----------------------------------------------------------------
 
-
+/*
 app.use(function (req, res, next) {
     console.log(('host: ' + req.host));
     console.log(('session: ' + req.session));
     console.log(('req.session.loginRedirect: ' + req.session.loginRedirect));
     next();
 });
-
+*/
 
 console.log("auth init");
 auth.init();
@@ -329,12 +332,32 @@ app.use('/upload', function (req, res, next) {
 });
 
 
-//this must come after the
-app.use(require('csurf')());
-app.use(function (req, res, next) {
-    res.locals._csrfToken = req.csrfToken();
-    next();
-});
+//this must come after the...
+// Exclude some routes fro requiring CSRF validations
+app.use(
+    [
+        function(req,res,next) {
+            if (['/oauth/token'].some(function(element, index, array) {
+                    return element === req.path;
+                })) {
+                console.log('csurf middleware bypassed:');
+                next();
+            } else {
+                console.log('csurf middleware passed:');
+                require('csurf')()(req,res,next);
+            }
+        }
+        ,
+        function (req, res, next) {
+            console.log('csrf set');
+            // In case middleware csurf is not used req.csrfToken is be undefined
+            if (req.csrfToken) {
+                res.locals._csrfToken = req.csrfToken();
+            }
+           next();
+        }
+    ]
+);
 
 // Clear flash session if any and store it in locals
 app.use(function (req, res, next) {
@@ -344,26 +367,29 @@ app.use(function (req, res, next) {
 });
 
 //This function sets parameters that will be used to display tests on pages
-app.use(function (req, res, next) {
-    res.locals.pageTest = app.get('env') !== 'production' && req.query.test === '1';
-    next();
-});
+if (app.get('env') !== 'production') {
+    app.use(function (req, res, next) {
+        res.locals.pageTest = req.query.test === '1';
+        next();
+    });
+}
 
 
 console.log("auth register routes");
 auth.registerRoutes();
 
 
-
+/*
 var attractionsApi = require('./routes/api.attractions');
 app.use('/', attractionsApi);
-
+*/
 
 
 // Routes
 var routes = require('./routes/index')(app);
 var users = require('./routes/users')(app);
 var admin = require('./routes/admin')(app);
+
 
 // Use subdomain admin (perque funcioni s'ha de configurar dns o be en local
 // modificar arxiu hosts perque arribin les peticions )
@@ -380,59 +406,6 @@ app.resource('forums', require('./routes/forums'));
 app.use(slash());
 
 
-// Preload database
-Vacation.find(function (err, vacations) {
-    if (vacations.length) return;
-
-    new Vacation({
-        name: "hood river",
-        slug: "hood-river",
-        category: "day-trip",
-        sku: "HR1999",
-        description: "Spend a day sailing",
-        priceInCents: 9995,
-        tags: ['day trip', 'hood river'],
-        inSeason: true,
-        available: true,
-        requiresWaiver: false,
-        maximumGuests: 16,
-        notes: '',
-        packagesSold: 0
-    }).save();
-
-    new Vacation({
-        name: "dark mountain",
-        slug: "dark-mountain",
-        category: "weekend getaway",
-        sku: "OCR39",
-        description: "eNJOY THE OCEAN AIR",
-        priceInCents: 259995,
-        tags: ['weekend', 'mountain'],
-        inSeason: false,
-        available: true,
-        requiresWaiver: false,
-        maximumGuests: 8,
-        notes: '',
-        packagesSold: 0
-    }).save();
-
-    new Vacation({
-        name: "rock climbing",
-        slug: "rock-climbing",
-        category: "adventure",
-        sku: "OCR39",
-        description: "eNJOY THE OCEAN AIR",
-        priceInCents: 259995,
-        tags: ['weekend', 'mountain'],
-        inSeason: true,
-        available: true,
-        requiresWaiver: false,
-        maximumGuests: 8,
-        notes: '',
-        packagesSold: 0
-    }).save();
-
-});
 /*console.log('module parent ' + module.parent.filename);
  console.log('test ' + /(.)+-test\.js$/.test(module.parent.filename));
  console.log('env ' + app.get('env'));
@@ -440,16 +413,7 @@ Vacation.find(function (err, vacations) {
  */
 
 
-
-
-
-
-//REMOVE FROM HERE AND PUT IS SOME ROUTES FILE !!!!
-
-app.get('/login', function (req, res) {
-    res.render('_pages/login');
-});
-
+//REMOVE FROM HERE AND PUT IN SOME ROUTES FILE !!!!
 
 app.get('/account', auth.orize('@'), function (req, res) {
     res.send("account");
@@ -731,111 +695,13 @@ app.post('/cart/checkout', function (req, res, next) {
 //REMOVE FROM HERE !!!!
 
 
+// Api's go after conventional routes
+// Initialize apis
+require('./lib/api').init(app);
 
-
-
-
-
-// API ROUTES (using connect-rest)
-// CAUTION: api paths should be treated after the other paths
-// Rest api using connect-rest (iin this case listening from api.* subdmonain)
-var apiOptions = {
-    context: '/',
-    domain: require('domain').create()
-};
-apiOptions.domain.on('error', function (err) {
-    console.log('API domain error.\n', err.stack);
-    setTimeout(function () {
-        console.log('Server shutting down after PAI domain error');
-        process.exit(1);
-    }, 5000);
-    app.
-        app.server.close();
-    var worker = require('cluster').worker;
-    if (worker) {
-        worker.disconnect();
-    }
-});
-
-
-
-var Attraction = require('./models/attraction');
-rest.get('/attractions', function (req, content, callback) {
-    console.log('in attractions');
-    console.log('Attraction:');
-    console.log('Attraction: ' + Attraction);
-    Attraction.find({approved: true}, function (err, attractions) {
-        console.log('in attractions find');
-        if (err) {
-            console.log('in attractions find error');
-            return callback({error: 'Internal error'});
-        }
-        callback(null, attractions.map(function (a) {
-            console.log('in attractions find callback');
-            return {
-                name: a.name,
-                description: a.description,
-                location: a.location
-            };
-        }));
-    });
-});
-
-
-
-rest.post('/attraction', function (req, content, callback) {
-    console.log('in post attraction');
-    console.log('req.body : ' + req.body);
-    console.log('\n\n');
-    console.log('content : ' + content);
-    var a = new Attraction({
-        name: req.body.name,
-        description: req.body.description,
-        location: {
-            lat: req.body.lat,
-            lng: req.body.email,
-            date: new Date()
-        },
-        approved: false
-    });
-    a.save(function (err, a) {
-        if (err) {
-            return callback({error: 'Unable to add attraction'});
-        }
-        callback(null, {id: a._id});
-    });
-});
-
-rest.get('/attraction/:id', function (req, content, callback) {
-
-    console.log('in get attraction id');
-    console.log(req.params.id);
-
-    Attraction.findById(req.params.id, function (err, attraction) {
-        console.log('0');
-        console.log('err: ' + err);
-        if (err) {
-            console.log('1' + err);
-            return callback({error: 'Unable to retrieve attraction'});
-        }
-        console.log('33');
-        console.log(attraction);
-
-        if (attraction) {
-            callback(null, {
-                name: attraction.name,
-                description: attraction.description,
-                location: attraction.location
-            });
-        } else {
-            callback(null, {error: 'No data found'});
-        }
-    });
-});
-
-
-
-app.use(vhost('api.*.com', rest.rester(apiOptions)));
+// Load api's routes
+require('./routes/api.attractions')(app);
+require('./routes/api.users')(app);
 
 
 // catch 404 and forward to error handler

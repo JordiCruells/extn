@@ -76,6 +76,13 @@ var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
 
+// Enable self signed certificates in development
+if (app.get('env') === 'development' ) {
+  console.log('development, setting process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0');
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+}
+
+
 // If we are executing this module, start node server
 // otherwise return a link to be started from another entry point
 if (require.main == module) {
