@@ -74,6 +74,8 @@ module.exports = function(grunt){
 	     paths: ['/views'],
          // urlfunc: 'embedurl', // use embedurl('test.png') in our code to trigger Data URI embedding
           use: [
+
+              //TODO: inject ennvironmet to use in _st function
               require('./lib/stylus-functions')  // add function st to obtain url(...) resource string
           ],
 

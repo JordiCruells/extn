@@ -1,0 +1,45 @@
+extends /_layouts/main
+
+//- TODO: use translations in this view
+
+block content
+
+    //TODO: use placeholders for hints
+
+    h1 Register
+    div.feedback= flash.form.feedback
+    form(method='POST', action='/register')
+        label(for="email") Email
+        input#email(type="email",name="email",value=flash.form.email.value, required, disabled=done)
+        div.errors
+            ul
+                each val in flash.form.email.errors
+                    li= val
+        label(for="firstName") First Name
+        input#firstName(type="text",name="firstName",value=flash.form.firstName.value, required, disabled=done)
+        div.errors
+            ul
+                each val in flash.form.firstName.errors
+                    li= val
+        label(for="lastName") Last Name
+        input#lastName(type="text",name="lastName",value=flash.form.lastName.value, disabled=done)
+        div.errors
+            ul
+                each val in flash.form.lastName.errors
+                    li= val
+        label(for="password") Password
+        input#password(type="password",name="password", pattern=".{6,}", required, disabled=done)
+        span.hint 6 characters or more
+        //- TODO: translate previous line
+        div.errors
+            ul
+                each val in flash.form.password.errors
+                    li= val
+        label(for="password_repeat") Repeat Password
+        input#password_repeat(type="password",name="password_repeat", required, disabled=done)
+        div.errors
+            ul
+                each val in flash.form.password_repeat.errors
+                    li= val
+        input(type="hidden", name="_csrf", value="#{_csrfToken}")
+        input(type="submit",value="Send", disabled=done)

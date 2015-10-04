@@ -26,11 +26,12 @@ head
     include ../_partials/facebookSDK
     // Flash messages
     block flash
-      if flash
+      if flash && flash.message
         div.alert.alert-dismissible
           button.close(type="buttton", data-dismiss="alert", aria-hidden="true") &times;
           strong #{flash.intro} 
-          #{flash.message}
+          div #{flash.message}
+
     block header
       img(src="#{_st('/images/error.jpg')}")
     block content

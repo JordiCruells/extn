@@ -23,6 +23,8 @@ var mailTransport = nodemailer.createTransport('SMTP', {
     }
 });
 
+
+
 //console.log('version: ' + express.version);
 
 var vhost = require('vhost');
@@ -71,14 +73,13 @@ i18n.configure({
 
 
 
+//TODO: use redis for sesions
 // Store sessions in mongo using session-mongoose
 var MongoSessionStore = require('session-mongoose')(require('connect'));
 var sessionStore = new MongoSessionStore({ url: dbConnectionString });
 
 // To use strict routes in a friendly way
 var slash   = require('express-slash');
-
-
 
 
 // Own libs
@@ -96,7 +97,7 @@ var auth = require('./lib/auth.js')(app, {
     failureRedirect: '/unathorized'
 });
 
-
+var registration = require('./lib/register')(app, {});
 
 // Globals
 
@@ -107,12 +108,12 @@ var dbConnectionString = "",
 
 switch (app.get('env')) {
     case 'development':
-        dbConnectionString = credentials.mongo.development.connectionString;
+        dbConnectionString = credentials.database.mongo.development.connectionString;
         baseUrl = "https://expressapp-local.com";
         domain = ".expressapp-local.com";
         break;
     case 'production':
-        dbConnectionString = credentials.mongo.production.connectionString;
+        dbConnectionString = credentials.database.production.connectionString;
         baseUrl = "https://expressapp.com";
         domain = ".expressapp.com";
         break;
@@ -121,6 +122,8 @@ switch (app.get('env')) {
         throw new Error('Unknown execution environment: ' + app.get('env'));
 }
 
+
+// TODO: rewrite this to a config file
 app.locals = {
     site: {
         title: 'Express App',
@@ -138,7 +141,7 @@ app.locals = {
     auth: auth
 };
 
-
+// TODO: rewite this as a module static
 // Translate static rsources to CDN paths
 app.locals._st = function(name) {
     return require('./lib/static.js').map(name);
@@ -289,6 +292,8 @@ app.use(session({
 })); // we can pass an object like {key: 'someKey', store: MemoryStore, cookie: {signed: true}}
 
 
+
+
 // TODO : ensure thsi middleware it's necessary
 // See http://stackoverflow.com/questions/9071969/using-express-and-node-how-to-maintain-a-session-across-subdomains-hostheaders
 /*app.use(function(req, res, next) {
@@ -313,7 +318,7 @@ console.log("auth init");
 auth.init();
 
 
-
+// TODO: move this route out of here
 // UPload files with jquery file upload middleware
 app.use('/upload', function (req, res, next) {
 
@@ -332,7 +337,7 @@ app.use('/upload', function (req, res, next) {
 });
 
 
-//this must come after the...
+// CSRF validation (some routes are excluded from this check)
 // Exclude some routes fro requiring CSRF validations
 app.use(
     [
@@ -360,11 +365,13 @@ app.use(
 );
 
 // Clear flash session if any and store it in locals
-app.use(function (req, res, next) {
+/*app.use(function (req, res, next) {
     res.locals.flash = req.session.flash;
     delete req.session.flash;
     next();
-});
+});*/
+app.use(require('./lib/flash')());
+
 
 //This function sets parameters that will be used to display tests on pages
 if (app.get('env') !== 'production') {
@@ -377,6 +384,8 @@ if (app.get('env') !== 'production') {
 
 console.log("auth register routes");
 auth.registerRoutes();
+registration.registerRoutes();
+
 
 
 /*

@@ -1,7 +1,7 @@
 var express = require('express');
 
 
-
+//todo: AQUESTS COMENTARIS ELS PUC ESBORRAR OI ?
 // ADVICE: THIS WON'T WORK AS
 // admin router is using a subdomain and
 // the authentication process only works
@@ -27,7 +27,7 @@ module.exports = function(app) {
     router.get('/', function(req, res) {
 
         console.log('admin/');
-        res.send('admin');
+        res.render('admin/index');
     });
 
     router.get('/users', function(req, res) {

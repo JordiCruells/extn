@@ -3,16 +3,12 @@ block content
     form(action="/auth/oauth/login",method="post")
         input(type="hidden", name="_csrf", value="#{_csrfToken}")
         div
-            label Username:
-            input(type="text", name="username")
+            label Email:
+            input(type="email", name="username", required)
             br
         div
             label Password
-            input(type="password", name="password")
+            input(type="password", name="password", required)
             br
         div
             input(type="submit", value="Submit")
-    p
-        small Hint - bob:secret
-    p
-        small Hint - joe:password
